@@ -14,6 +14,8 @@ const startingY = canvas.height - 125
 let intervalId;
 let animationId;
 
+let gameOn = false
+
 let score = 0
 
 class Obstacle {
@@ -77,7 +79,7 @@ function checkCollision (obstacle) {
 
 }
 
-const obstaclesArray = []
+let obstaclesArray = []
 
 function createObstacle() {
   
@@ -92,14 +94,24 @@ function animationLoop() {
   }, 16)
 }
 
+function showScore() {
+  ctx.fillStyle = 'black'
+  ctx.fillRect(340, 10, 150, 50)
+
+  ctx.fillStyle = "white"
+  ctx.font = '24px serif'
+  ctx.fillText(`Score: ${score}`, 370, 40)
+}
+
 function updateCanvas() {
 
   ctx.clearRect(0,0,500,700)
   
   ctx.drawImage(road, 0, 0, 500, 700)
 
+  
   player.draw()
-
+  
   for (let i = 0; i < obstaclesArray.length; i++) {
     if (obstaclesArray[i].y > canvas.height) {
       obstaclesArray.splice(i, 1)
@@ -110,12 +122,22 @@ function updateCanvas() {
     obstaclesArray[i].newPosition()
     obstaclesArray[i].draw()
   }
-
-
+  
+  showScore()
+  if (score === 15) {
+    gameOver()
+  }
+  
 }
 
 
 function startGame() {
+
+  gameOn = true
+
+  obstaclesArray = []
+  player.x = startingX
+  player.y = startingY
 
   ctx.drawImage(road, 0, 0, 500, 700)
   player.draw()
@@ -125,16 +147,38 @@ function startGame() {
 }
 
 function gameOver() {
+
+  gameOn = false
+
+
   console.log("Game over")
   clearInterval(animationId)
   clearInterval(intervalId)
-  obstaclesArray = []
   
+  ctx.clearRect(0,0,500,700)
+  ctx.fillStyle = 'black'
+  ctx.fillRect(0,0,500,700)
+  
+  if (score > 14) {
+    ctx.fillStyle = "white"
+    ctx.font = '40px serif'
+    ctx.fillText("You've won!", 150, 200)
+  } else {
+    ctx.fillStyle = "white"
+    ctx.font = '40px serif'
+    ctx.fillText("You lose!", 150, 200)
+  }
+  
+  obstaclesArray = []
+  score = 0
+
 }
 
 window.onload = () => {
   document.getElementById('start-button').onclick = () => {
-    startGame();
+    if (gameOn === false) {
+      startGame();
+    }
   };
 
   document.addEventListener('keydown', e => {
